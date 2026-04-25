@@ -102,7 +102,7 @@ def is_path_ignored(
                 return True
         
         for pattern in _REUSE_IGNORE_PATTERNS:
-            if pattern.match(name): 
+            if pattern.match(os.path.sep.join(path.parts)): 
                 return True
         
         # Suppressing this error because I simply don't want to deal
