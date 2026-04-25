@@ -13,9 +13,12 @@ import logging
 import os
 import re
 import stat
+import glob
 from collections.abc import Collection, Generator
 from pathlib import Path
 from typing import cast
+
+from reuse.project import Project
 
 from .types import StrPath
 from .vcs import VCSStrategy
@@ -58,6 +61,17 @@ _IGNORE_SPDX_PATTERNS = [
 # Combine SPDX patterns into file patterns to ease default ignore usage
 _IGNORE_FILE_PATTERNS.extend(_IGNORE_SPDX_PATTERNS)
 
+_REUSE_IGNORE_PATTERNS = []
+
+def parse_ignore():
+    # i cannot be fucked to figure out how to get project.root. hardcoded it, yolo
+    with open(".reuse/ignore", "r") as file:
+        for line in file.readlines():
+            _REUSE_IGNORE_PATTERNS.append(
+                re.compile(glob.translate(line.strip(), recursive=True))
+            )
+
+parse_ignore()
 
 def is_path_ignored(
     path: Path,
@@ -73,7 +87,6 @@ def is_path_ignored(
 
     # Only stat the file once instead of multiple times.
     stat_result = path.lstat()
-
     # Symlink.
     if stat.S_ISLNK(stat_result.st_mode):
         _LOGGER.debug("skipping symlink '%s'", path)
@@ -87,6 +100,11 @@ def is_path_ignored(
                 name != "REUSE.toml" or not include_reuse_tomls
             ):
                 return True
+        
+        for pattern in _REUSE_IGNORE_PATTERNS:
+            if pattern.match(name): 
+                return True
+        
         # Suppressing this error because I simply don't want to deal
         # with that here.
         with contextlib.suppress(OSError):

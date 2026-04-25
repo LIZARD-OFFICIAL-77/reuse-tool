@@ -162,3 +162,4 @@ Contributors
 - Martijn Saelens <https://github.com/MartenBE>
 - Nguyễn Gia Phong <cnx@loang.net>
 - Quentin BETTOUM <quentin@bettoum.fr>
+- LIZARD-OFFICIAL-77 <lizard.official.77@gmail.com>

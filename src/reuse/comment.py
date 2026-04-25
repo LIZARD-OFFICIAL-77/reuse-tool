@@ -116,7 +116,7 @@ class CommentStyle:
         if cls.SINGLE_LINE == None:
             if cls.MULTI_LINE.end in text:
                 raise CommentCreateError(
-                    f"'{line}' contains a premature comment delimiter"
+                    f"Text contains a premature comment delimiter"
                 )
             for line in text.split("\n"):
                 line_result = cls.MULTI_LINE.start + cls.INDENT_BEFORE_MIDDLE
@@ -145,7 +145,7 @@ class CommentStyle:
         result.append(cls.MULTI_LINE.start)
         if cls.MULTI_LINE.end in text:
             raise CommentCreateError(
-                f"'{line}' contains a premature comment delimiter"
+                f"Text contains a premature comment delimiter"
             )
         for line in text.split("\n"):
             line_result = ""
@@ -192,11 +192,14 @@ class CommentStyle:
                     result_lines.append(line)
                     continue
 
-            if not line.startswith(cls.SINGLE_LINE):
+            if not ((cls.SINGLE_LINE and line.startswith(cls.SINGLE_LINE)) or line.startswith(cls.MULTI_LINE.start + cls.INDENT_BEFORE_MIDDLE)):
                 raise CommentParseError(
                     f"'{line}' does not start with a comment marker"
                 )
-            line = line.removeprefix(cls.SINGLE_LINE)
+            if cls.SINGLE_LINE:
+                line = line.removeprefix(cls.SINGLE_LINE)
+            else:
+                line = line.removeprefix("")
             result_lines.append(line)
 
         result = "\n".join(result_lines)
@@ -285,7 +288,11 @@ class CommentStyle:
             if (
                 cls.SINGLE_LINE_REGEXP
                 and cls.SINGLE_LINE_REGEXP.match(line)
-            ) or line.startswith(cls.SINGLE_LINE):
+            ):
+                end = i
+            elif cls.SINGLE_LINE and line.startswith(cls.SINGLE_LINE):
+                end = i
+            elif line.startswith(cls.MULTI_LINE.start + cls.INDENT_BEFORE_MIDDLE):
                 end = i
             else:
                 break
