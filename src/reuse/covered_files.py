@@ -18,8 +18,6 @@ from collections.abc import Collection, Generator
 from pathlib import Path
 from typing import cast
 
-from reuse.project import Project
-
 from .types import StrPath
 from .vcs import VCSStrategy
 
