@@ -246,8 +246,8 @@ def place_header(
     #     else:
     #         separator = ""
         # new_text = f"{new_text}{separator}{after}"
+    new_text = f"{new_text}{after}"
 
-        new_text = f"{new_text}{after}"
     return new_text
 
 

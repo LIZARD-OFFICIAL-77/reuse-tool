@@ -292,7 +292,7 @@ class CommentStyle:
                 end = i
             elif cls.SINGLE_LINE and line.startswith(cls.SINGLE_LINE):
                 end = i
-            elif line.startswith(cls.MULTI_LINE.start + cls.INDENT_BEFORE_MIDDLE):
+            elif cls.SINGLE_LINE == None and line.startswith(cls.MULTI_LINE.start + cls.INDENT_BEFORE_MIDDLE):
                 end = i
             else:
                 break
@@ -1008,11 +1008,15 @@ _result.remove(UncommentableCommentStyle)
 #: A map of human-friendly names against style classes.
 NAME_STYLE_MAP = {style.SHORTHAND: style for style in _result}
 
-
 def get_comment_style(path: StrPath) -> type[CommentStyle] | None:
     """Return value of CommentStyle detected for *path* or None."""
     path = Path(path)
+    
     style = FILENAME_COMMENT_STYLE_MAP_LOWERCASE.get(path.name.lower())
+    
+    if re.match("Dockerfile\\..*|.*\\.Dockerfile", path.parts[-1]):
+        return PythonCommentStyle
+    
     if style is None:
         style = EXTENSION_COMMENT_STYLE_MAP_LOWERCASE.get(
             "".join(path.suffixes).lower()
