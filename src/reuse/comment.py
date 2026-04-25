@@ -109,11 +109,11 @@ class CommentStyle:
             CommentCreateError: if *text* could not be commented.
         """
         result = []
-        
-        if not cls.can_handle_multi():
-            raise CommentCreateError(f"{cls} cannot create comments")
-        
+                
         if cls.SINGLE_LINE == None:
+            if not cls.can_handle_multi():
+                raise CommentCreateError(f"{cls} cannot create comments")
+
             if cls.MULTI_LINE.end in text:
                 raise CommentCreateError(
                     f"Text contains a premature comment delimiter"
