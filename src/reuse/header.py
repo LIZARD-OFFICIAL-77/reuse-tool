@@ -11,7 +11,8 @@
 # SPDX-FileCopyrightText: 2022 Carmen Bianca Bakker <carmenbianca@fsfe.org>
 # SPDX-FileCopyrightText: 2025 Rivos Inc.
 # SPDX-FileCopyrightText: 2025 Matthias Schoettle <opensource@mattsch.com>
-#
+# SPDX-FileCopyrightText: 2026 LIZARD-OFFICIAL-77 <lizard.official.77@gmail.com>
+# 
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 """Functions for manipulating the comment headers of files."""
@@ -222,30 +223,20 @@ def _extract_shebang(prefix: str, text: str) -> tuple[str, str]:
     return (shebang, text)
 
 
+# Removed code that forcibly adds a newline with no way to disable it.
+# Really unnecessary.
 def place_header(
     header: str,
     before: str,
     after: str,
-    has_existing_header: bool,
-    double_newline_after_before: bool = True,
 ) -> str:
     """Construct the resulting file with the header and the rest of the text
     in the file.
     """
     new_text = f"{header}\n"
     if before.strip():
-        newlines = "\n\n" if double_newline_after_before else "\n"
-        new_text = f"{before.rstrip()}{newlines}{new_text}"
+        new_text = f"{before.rstrip()}\n{new_text}"
 
-    # Comment out code that forcibly adds a newline with no way to disable it.
-    # if after.strip():
-    #     # Create space between header and following code only if a newline
-    #     # doesn't already exist, and there wasn't previously a header.
-    #     if not has_existing_header and not after.startswith("\n"):
-    #         separator = "\n"
-    #     else:
-    #         separator = ""
-        # new_text = f"{new_text}{separator}{after}"
     new_text = f"{new_text}{after}"
 
     return new_text
@@ -331,8 +322,6 @@ def find_and_replace_header(
         new_header,
         before,
         after,
-        bool(header),
-        double_newline_after_before=not frontmatter,
     )
 
 
@@ -374,4 +363,4 @@ def add_new_header(
         merge_copyrights=merge_copyrights,
     )
 
-    return place_header(header, shebang, text, False)
+    return place_header(header, shebang, text)

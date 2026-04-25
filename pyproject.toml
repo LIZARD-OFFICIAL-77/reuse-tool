@@ -6,9 +6,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
 [tool.poetry]
-name = "reuse"
-version = "6.2.1"
-description = "reuse is a tool for compliance with the REUSE recommendations."
+name = "lizreuse"
+version = "6.2.2"
+description = "Fork of reuse-tool to add much needed features and remove annoying behaviour."
 authors = [
     "Free Software Foundation Europe <contact@fsfe.org>",
 ]
@@ -16,6 +16,7 @@ maintainers = [
     "Carmen Bianca Bakker <carmenbianca@fsfe.org>",
     "Max Mehl <max.mehl@fsfe.org>",
     "Linus Sehn <linus@fsfe.org>",
+    "LIZARD-OFFICIAL-77 <lizard.official.77@gmail.com>",
 ]
 license = "Apache-2.0 AND CC0-1.0 AND CC-BY-SA-4.0 AND GPL-3.0-or-later"
 readme = "README.md"

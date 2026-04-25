@@ -119,10 +119,10 @@ class CommentStyle:
                     f"Text contains a premature comment delimiter"
                 )
             for line in text.split("\n"):
-                line_result = cls.MULTI_LINE.start + cls.INDENT_BEFORE_MIDDLE
+                line_result = cls.MULTI_LINE.start + " "
                 if line:
                     line_result += line
-                line_result += cls.INDENT_BEFORE_MIDDLE + cls.MULTI_LINE.end
+                line_result += " " + cls.MULTI_LINE.end
                 result.append(line_result)
         else:
             for line in text.split("\n"):
