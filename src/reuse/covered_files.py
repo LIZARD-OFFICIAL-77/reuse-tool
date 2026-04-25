@@ -63,11 +63,12 @@ _REUSE_IGNORE_PATTERNS = []
 
 def parse_ignore():
     # i cannot be fucked to figure out how to get project.root. hardcoded it, yolo
-    with open(".reuse/ignore", "r") as file:
-        for line in file.readlines():
-            _REUSE_IGNORE_PATTERNS.append(
-                re.compile(glob.translate(line.strip(), recursive=True))
-            )
+    if Path(".reuse/ignore").is_file():
+        with open(".reuse/ignore", "r") as file:
+            for line in file.readlines():
+                _REUSE_IGNORE_PATTERNS.append(
+                    re.compile(glob.translate(line.strip(), recursive=True))
+                )
 
 parse_ignore()
 
