@@ -236,15 +236,18 @@ def place_header(
     if before.strip():
         newlines = "\n\n" if double_newline_after_before else "\n"
         new_text = f"{before.rstrip()}{newlines}{new_text}"
-    if after.strip():
-        # Create space between header and following code only if a newline
-        # doesn't already exist, and there wasn't previously a header.
-        if not has_existing_header and not after.startswith("\n"):
-            separator = "\n"
-        else:
-            separator = ""
 
-        new_text = f"{new_text}{separator}{after}"
+    # Comment out code that forcibly adds a newline with no way to disable it.
+    # if after.strip():
+    #     # Create space between header and following code only if a newline
+    #     # doesn't already exist, and there wasn't previously a header.
+    #     if not has_existing_header and not after.startswith("\n"):
+    #         separator = "\n"
+    #     else:
+    #         separator = ""
+        # new_text = f"{new_text}{separator}{after}"
+
+        new_text = f"{new_text}{after}"
     return new_text
 
 
