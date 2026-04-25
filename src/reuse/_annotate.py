@@ -140,11 +140,12 @@ def add_header_to_file(
                 force_multi=force_multi,
                 merge_copyrights=merge_copyrights,
             )
-    except CommentCreateError:
+    except CommentCreateError as err:
         out.write(
             _("Error: Could not create comment for '{path}'").format(path=path)
         )
         out.write("\n")
+        out.write(str(err))
         result = 1
     except MissingReuseInfoError:
         out.write(
