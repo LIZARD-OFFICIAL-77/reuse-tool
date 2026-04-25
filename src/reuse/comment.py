@@ -32,6 +32,7 @@
 # SPDX-FileCopyrightText: 2025 Manlio Perillo <manlio.perillo@gmail.com>
 # SPDX-FileCopyrightText: 2025 Matthias Schoettle <opensource@mattsch.com>
 # SPDX-FileCopyrightText: 2026 Quentin BETTOUM <quentin@bettoum.fr>
+# SPDX-FileCopyrightText: 2026 LIZARD-OFFICIAL-77 <lizard.official.77@gmail.com>
 #
 # SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -63,12 +64,11 @@ class MultiLineSegments(NamedTuple):
     middle: str
     end: str
 
-
 class CommentStyle:
     """Base class for comment style."""
 
     SHORTHAND = ""
-    SINGLE_LINE = ""
+    SINGLE_LINE: str | None = None
     SINGLE_LINE_REGEXP: re.Pattern | None = None
     INDENT_AFTER_SINGLE = ""
     # (start, middle, end)
@@ -82,7 +82,7 @@ class CommentStyle:
     @classmethod
     def can_handle_single(cls) -> bool:
         """Whether the :class:`CommentStyle` can handle single-line comments."""
-        return bool(cls.SINGLE_LINE)
+        return True
 
     @classmethod
     def can_handle_multi(cls) -> bool:
@@ -97,7 +97,7 @@ class CommentStyle:
         Raises:
             CommentCreateError: if *text* could not be commented.
         """
-        if force_multi or not cls.can_handle_single():
+        if force_multi:
             return cls._create_comment_multi(text)
         return cls._create_comment_single(text)
 
@@ -108,16 +108,28 @@ class CommentStyle:
         Raises:
             CommentCreateError: if *text* could not be commented.
         """
-        if not cls.can_handle_single():
-            raise CommentCreateError(
-                f"{cls} cannot create single-line comments"
-            )
         result = []
-        for line in text.split("\n"):
-            line_result = cls.SINGLE_LINE
-            if line:
-                line_result += cls.INDENT_AFTER_SINGLE + line
-            result.append(line_result)
+        
+        if not cls.can_handle_multi():
+            raise CommentCreateError(f"{cls} cannot create comments")
+        
+        if cls.SINGLE_LINE == None:
+            if cls.MULTI_LINE.end in text:
+                raise CommentCreateError(
+                    f"'{line}' contains a premature comment delimiter"
+                )
+            for line in text.split("\n"):
+                line_result = cls.MULTI_LINE.start + cls.INDENT_BEFORE_MIDDLE
+                if line:
+                    line_result += line
+                line_result += cls.INDENT_BEFORE_MIDDLE + cls.MULTI_LINE.end
+                result.append(line_result)
+        else:
+            for line in text.split("\n"):
+                line_result = cls.SINGLE_LINE
+                if line:
+                    line_result += cls.INDENT_AFTER_SINGLE + line
+                result.append(line_result)
         return "\n".join(result)
 
     @classmethod
@@ -131,11 +143,11 @@ class CommentStyle:
             raise CommentCreateError(f"{cls} cannot create multi-line comments")
         result = []
         result.append(cls.MULTI_LINE.start)
+        if cls.MULTI_LINE.end in text:
+            raise CommentCreateError(
+                f"'{line}' contains a premature comment delimiter"
+            )
         for line in text.split("\n"):
-            if cls.MULTI_LINE.end in text:
-                raise CommentCreateError(
-                    f"'{line}' contains a premature comment delimiter"
-                )
             line_result = ""
             if cls.MULTI_LINE.middle:
                 line_result += cls.INDENT_BEFORE_MIDDLE + cls.MULTI_LINE.middle
@@ -266,21 +278,17 @@ class CommentStyle:
             CommentParseError: if *text* does not start with a parseable
                 comment block.
         """
-        if not any((cls.can_handle_single(), cls.can_handle_multi())):
-            raise CommentParseError(f"{cls} cannot parse comments")
-
         lines = text.splitlines()
         end: int | None = None
 
-        if cls.can_handle_single():
-            for i, line in enumerate(lines):
-                if (
-                    cls.SINGLE_LINE_REGEXP
-                    and cls.SINGLE_LINE_REGEXP.match(line)
-                ) or line.startswith(cls.SINGLE_LINE):
-                    end = i
-                else:
-                    break
+        for i, line in enumerate(lines):
+            if (
+                cls.SINGLE_LINE_REGEXP
+                and cls.SINGLE_LINE_REGEXP.match(line)
+            ) or line.startswith(cls.SINGLE_LINE):
+                end = i
+            else:
+                break
         if (
             end is None
             and cls.can_handle_multi()
@@ -839,7 +847,10 @@ EXTENSION_COMMENT_STYLE_MAP = {
     ".sps": LispCommentStyle,  # Scheme Program Source (R6RS)
     ".sql": HaskellCommentStyle,
     ".sty": TexCommentStyle,
-    ".svg": UncommentableCommentStyle,
+    # why would even svg be uncommentable
+    # its xml too??!
+    # fuck. im tired.
+    ".svg": HtmlCommentStyle,
     ".svelte": HtmlCommentStyle,
     ".swift": CppCommentStyle,
     ".t": PythonCommentStyle,

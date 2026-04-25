@@ -135,12 +135,11 @@ def verify_paths_comment_style(
 
 
 def verify_paths_line_handling(
-    single_line: bool,
     multi_line: bool,
     forced_style: str | None,
     paths: Iterable[Path],
 ) -> None:
-    """This function aborts the parser when --single-line or --multi-line is
+    """This function aborts the parser when --multi-line is
     used, but the file type does not support that type of comment style.
     """
     for path in paths:
@@ -153,14 +152,6 @@ def verify_paths_line_handling(
         # this case.
         if style is None:
             continue
-        # TODO: list all non-functional paths
-        if single_line and not style.can_handle_single():
-            raise click.UsageError(
-                _(
-                    "'{path}' does not support single-line comments, please"
-                    " do not use '--single-line'."
-                ).format(path=path.as_posix())
-            )
         if multi_line and not style.can_handle_multi():
             raise click.UsageError(
                 _(
@@ -485,7 +476,7 @@ def annotate(
         style, fallback_dot_license, skip_unrecognised, force_dot_license, paths
     )
     # Verify line handling and comment styles before proceeding.
-    verify_paths_line_handling(single_line, multi_line, style, paths)
+    verify_paths_line_handling(multi_line, style, paths)
     template, commented = get_template(template_str, project)
     years_tuple = get_years(years, exclude_year)
     reuse_info = get_reuse_info(
